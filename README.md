@@ -10,16 +10,20 @@ First thing I want to do is to change the way rules are set. The ever-present "e
 
 So something like
 
-<code>$obj->set_rule(array(
+```
+$obj->set_rule(array(
     'required'  =>  array('error', 'This field is required!'),
     'email'     =>  array('error', 'Email address is invalid'),
     'length'    =>  array(1, 50, 'error', 'Email address must be no longer than 50 characters!'),
-));</code>
+));
+```
 
 will now be
 
-<code>$obj->set_rule(array(
+```
+$obj->set_rule(array(
     'required',
     'email',
     'length'    =>  array(1, 50),
-));</code>
+));
+```
