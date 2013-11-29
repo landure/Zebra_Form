@@ -27,7 +27,7 @@ define('ZEBRA_FORM_UPLOAD_RANDOM_NAMES', false);
  *  For more resources visit {@link http://stefangabos.ro/}
  *
  *  @author     Stefan Gabos <contact@stefangabos.ro>
- *  @version    2.9.4 (last revision: November 20, 2013)
+ *  @version    3.0.0 (last revision: November 29, 2013)
  *  @copyright  (c) 2006 - 2013 Stefan Gabos
  *  @license    http://www.gnu.org/licenses/lgpl-3.0.txt GNU LESSER GENERAL PUBLIC LICENSE
  *  @package    Zebra_Form
@@ -195,7 +195,6 @@ class Zebra_Form
             'name'                      =>  $name,
             'other_suffix'              =>  '_other',
             'secret_key'                =>  '',
-            'show_all_error_messages'   =>  false,
 
         );
 
@@ -258,8 +257,7 @@ class Zebra_Form
      *  // make the text field required
      *  $obj->set_rule(
      *       'required' => array(
-     *          'error',            // variable to add the error message to
-     *          'Field is required' // error message if value doesn't validate
+     *          'Field is required' // error message to show if value doesn't validate
      *       )
      *  );
      *
@@ -469,8 +467,7 @@ class Zebra_Form
      *  // make the text field required
      *  $obj->set_rule(
      *       'required' => array(
-     *          'error',            // variable to add the error message to
-     *          'Field is required' // error message if value doesn't validate
+     *          'Field is required' // error message to show if value doesn't validate
      *       )
      *  );
      *
@@ -484,7 +481,7 @@ class Zebra_Form
      *      // check if value's is between 1 and 10
      *      if ((int)$_POST['my_text']) < 1 || (int)$_POST['my_text']) > 10) {
      *
-     *          $form->add_error('error', 'Value must be an integer between 1 and 10!');
+     *          $form->add_error('Value must be an integer between 1 and 10!');
      *
      *      } else {
      *
@@ -498,24 +495,21 @@ class Zebra_Form
      *  $form->render();
      *  </code>
      *
-     *  @param  string  $error_block    The name of the error block to append the error message to (also the name
-     *                                  of the PHP variable that will be available in the template file).
-     *
-     *  @param  string  $error_message  The error message to append to the error block.
+     *  @param  string  $error_message  The error message.
      *
      *  @return void
      */
-    function add_error($error_block, $error_message)
+    function add_error($error_message)
     {
 
-        // if the error block was not yet created, create the error block
-        if (!isset($this->errors[$error_block])) $this->errors[$error_block] = array();
+        // trim white space
+        $error_message = trim($error_message);
 
         // if the same exact message doesn't already exists
-        if (!in_array(trim($error_message), $this->errors[$error_block]))
+        if (!in_array($error_message, $this->errors))
 
             // append the error message to the error block
-            $this->errors[$error_block][] = trim($error_message);
+            $this->errors[] = $error_message;
 
     }
 
@@ -1099,8 +1093,9 @@ class Zebra_Form
      *                                  The template file itself must be a plain PHP file where all the controls
      *                                  added to the form (except for the hidden controls, which are handled automatically)
      *                                  will be available as variables with the names as described in the documentation
-     *                                  for each of the controls. Also, error messages will be available as described at
-     *                                  {@link Zebra_Form_Control::set_rule() set_rule()}.
+     *                                  for each of the controls.
+     *
+     *                                  Server-side error messages will be automatically displayed at the top of the form.
      *
      *                                  A special variable will also be available in the template file - a variable with
      *                                  the name of the form and being an associative array containing all the controls
@@ -1726,29 +1721,26 @@ class Zebra_Form
         $output .= '</div>';
 
         // if there are any error messages
-        if (!empty($this->errors))
+        if (!empty($this->errors)) {
+
+            $content = '';
 
             // iterate through each error block
-            foreach ($this->errors as $error_block => $error_messages) {
+            foreach ($this->errors as $error_message) {
 
-                $content = '';
+                // render each message in block
+                $content .= '<span>' . $error_message . '</span>';
 
-                // iterate through each message of the error block
-                foreach ($error_messages as $error_message) {
-
-                    // render each message in block
-                    $content .= '<span>' . $error_message . '</span>';
-
-                    // if only one error message is to be show
-                    // break out from the foreach loop
-                    if ($this->form_properties['show_all_error_messages'] === false) break;
-
-                }
-
-                // switch the array entry with it's rendered form
-                $this->errors[$error_block] = '<div class="error"><div class="container">' . $content . '<div class="close"><a href="javascript:void(0)">close</a></div></div></div>';
+                // if only one error message is to be show
+                // break out from the foreach loop
+                if ($this->form_properties['show_all_error_messages'] === false) break;
 
             }
+
+            // switch the array entry with it's rendered form
+            $this->errors = '<div class="error"><div class="container">' . $content . '<div class="close"><a href="javascript:void(0)">close</a></div></div></div>';
+
+        }
 
         // if there are any SPAM or CSRF errors
         if (isset($this->errors['zf_error_spam']) || isset($this->errors['zf_error_csrf'])) {
@@ -2239,37 +2231,6 @@ class Zebra_Form
             $obj->reset();
 
         }
-
-    }
-
-    /**
-     *  Sets how error messages generated upon server-side validation are displayed in an
-     *  {@link Zebra_Form_Control::set_rule() error block}.
-     *
-     *  Client-side validation is done on the "onsubmit" event of the form. See {@link clientside_validation()} for
-     *  more information on client-side validation.
-     *
-     *  <code>
-     *  //  create a new form
-     *  $form = new Zebra_Form('my_form');
-     *
-     *  //  display all error messages of error blocks
-     *  $form->show_all_error_messages(true);
-     *  </code>
-     *
-     *  @param  boolean $value  Setting this argument to TRUE will display <i>all</i> error messages of an error block,
-     *                          while setting it to FALSE will display one error message at a time.
-     *
-     *                          Default is FALSE.
-     *
-     *
-     *  @return                 void
-     */
-    function show_all_error_messages($value = false)
-    {
-
-        // set the property
-        $this->form_properties['show_all_error_messages'] = $value;
 
     }
 

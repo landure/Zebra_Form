@@ -631,31 +631,9 @@ class Zebra_Form_Control extends XSS_Clean
      *      // and $arg1, $arg2, $argn are arguments specific to each rule
      *  </code>
      *
-     *  When a validation rule is not passed, a variable becomes available in the template file, having the name
-     *  as specified by the rule's <b>error_block</b> argument and having the value as specified by the rule's
-     *  <b>error_message</b> argument.
-     *
      *  <samp>Validation rules are checked in the given order, the exceptions being the "dependencies", "required" and
      *  "upload" rules, which are *always* checked in the order of priority: "dependencies" has priority over "required"
      *  which in turn has priority over "upload".</samp>
-     *
-     *  I usually have at the top of my custom templates something like (assuming all errors are sent to an error block
-     *  named "error"):
-     *
-     *  <code>echo (isset($zf_error) ? $zf_error : (isset($error) ? $error : ''));</code>
-     *
-     *  <samp>The above code nees to be used only for custom templates, or when the output is generated via callback
-     *  functions! For automatically generated templates it is all taken care for you automatically by the library! Notice
-     *  the $zf_error variable which is automatically created by the library if there is a SPAM or a CSRF error! Unless
-     *  you use it, these errors will not be visible for the user. Again, remember, we're talking about custom templates,
-     *  or output generated via callback functions.</samp>
-     *
-     *  One or all error messages can be displayed in an error block.
-     *  See the {@link Zebra_Form::show_all_error_messages() show_all_error_messages()} method.
-     *
-     *  <b>Everything related to error blocks applies only for server-side validation.</b><br>
-     *  <b>See the {@link Zebra_Form::client_side_validation() client_side_validation()} method for configuring how errors
-     *  are to be displayed to the user upon client-side validation.</b>
      *
      *  Available rules are
      *  -   alphabet
@@ -686,7 +664,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>alphabet</b>
      *
-     *  <code>'alphabet' => array($additional_characters, $error_block, $error_message)</code>
+     *  <code>'alphabet' => array($additional_characters, $error_message)</code>
      *
      *  where
      *
@@ -694,9 +672,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      an empty string if none); note that if you want to use / (backslash) you need to specify it as three (3)
      *      backslashes ("///")!
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value contains only characters from the alphabet (case-insensitive a to z) <b>plus</b> characters
      *  given as additional characters (if any).
@@ -709,7 +685,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'alphabet' => array(
      *          '-'                                     // allow alphabet plus dash
-     *          'error',                                // variable to add the error message to
      *          'Only alphabetic characters allowed!'   // error message if value doesn't validate
      *       )
      *  );
@@ -717,7 +692,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>alphanumeric</b>
      *
-     *  <code>'alphanumeric' => array($additional_characters, $error_block, $error_message)</code>
+     *  <code>'alphanumeric' => array($additional_characters, $error_message)</code>
      *
      *  where
      *
@@ -725,9 +700,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      digits 0 to 9 (provide an empty string if none); note that if you want to use / (backslash) you need to
      *      specify it as three (3) backslashes ("///")!
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value contains only characters from the alphabet (case-insensitive a to z) and digits (0 to 9)
      *  <b>plus</b> characters given as additional characters (if any).
@@ -740,7 +713,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'alphanumeric' => array(
      *          '-',                                    // allow alphabet, digits and dash
-     *          'error',                                // variable to add the error message to
      *          'Only alphanumeric characters allowed!' // error message if value doesn't validate
      *       )
      *  );
@@ -748,13 +720,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>captcha</b>
      *
-     *  <code>'captcha' => array($error_block, $error_message)</code>
+     *  <code>'captcha' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value matches the characters seen in the {@link Zebra_Form_Captcha captcha} image
      *  (therefore, there must be a {@link Zebra_Form_Captcha captcha} image on the form)
@@ -767,7 +737,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'captcha' => array(
-     *          'error',                            // variable to add the error message to
      *          'Characters not entered correctly!' // error message if value doesn't validate
      *       )
      *  );
@@ -775,15 +744,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>compare</b>
      *
-     *  <code>'compare' => array($control, $error_block, $error_message)</code>
+     *  <code>'compare' => array($control, $error_message)</code>
      *
      *  where
      *
      *  -   <i>control</i> is the name of a control on the form to compare values with
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value is the same as the value of the control indicated by <i>control</i>.
      *
@@ -797,7 +764,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'compare' => array(
      *          'password'                          // name of the control to compare values with
-     *          'error',                            // variable to add the error message to
      *          'Password not confirmed correctly!' // error message if value doesn't validate
      *       )
      *  );
@@ -808,7 +774,7 @@ class Zebra_Form_Control extends XSS_Clean
      *  <samp>This rule requires the prior inclusion of the {@link http://stefangabos.ro/php-libraries/zebra-image Zebra_Image}
      *  library!</samp>
      *
-     *  <code>'convert' => array($type, $jpeg_quality, $preserve_original_file, $overwrite, $error_block, $error_message)</code>
+     *  <code>'convert' => array($type, $jpeg_quality, $preserve_original_file, $overwrite, $error_message)</code>
      *
      *  where
      *
@@ -828,9 +794,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      If a file with the same name as the converted file already exists and this argument is FALSE, a suffix of
      *      "_n" (where n is an integer) will be appended to the file name.
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  This rule will convert an image file uploaded using the <b>upload</b> rule from whatever its type (as long as is one
      *  of the supported types) to the type indicated by <i>type</i>.
@@ -855,7 +819,6 @@ class Zebra_Form_Control extends XSS_Clean
      *          85,                             // converted file quality
      *          false,                          // preserve original file?
      *          false,                          // overwrite if converted file already exists?
-     *          'error',                        // variable to add the error message to
      *          'File could not be uploaded!'   // error message if value doesn't validate
      *       )
      *  );
@@ -865,15 +828,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  Using this rule, custom rules can be applied to the submitted values.
      *
-     *  <code>'custom'=>array($callback_function_name, [optional arguments to be passed to the function], $error_block, $error_message)</code>
+     *  <code>'custom'=>array($callback_function_name, [optional arguments to be passed to the function], $error_message)</code>
      *
      *  where
      *
      *  -   <i>callback_function_name</i> is the name of the callback function
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  <i>The callback function's first argument must ALWAYS be the control's submitted value. The optional arguments to
      *  be passed to the callback function will start as of the second argument!</i>
@@ -885,8 +846,8 @@ class Zebra_Form_Control extends XSS_Clean
      *  <code>
      *  'custom' => array(
      *
-     *      array($callback_function_name1, [optional arguments to be passed to the function], $error_block, $error_message),
-     *      array($callback_function_name1, [optional arguments to be passed to the function], $error_block, $error_message)
+     *      array($callback_function_name1, [optional arguments to be passed to the function], $error_message),
+     *      array($callback_function_name1, [optional arguments to be passed to the function], $error_message)
      *
      *  )
      *  </code>
@@ -929,10 +890,9 @@ class Zebra_Form_Control extends XSS_Clean
      *  // on that requires the value to be an integer
      *  // and a custom rule that requires the value to be greater than 21
      *  $obj->set_rule(
-     *      'number'    =>  array('', 'error', 'Value must be an integer!'),
+     *      'number'    =>  array('', 'Value must be an integer!'),
      *      'custom'    =>  array(
      *          'is_valid_number',
-     *          'error',
      *          'Value must be greater than 21!'
      *      )
      *  );
@@ -1005,7 +965,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(array(
      *      'custom'  =>  array(
      *          'username_not_taken',
-     *          'error',
      *          'This user name is already taken!'
      *      ),
      *  ));
@@ -1048,13 +1007,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>date</b>
      *
-     *  <code>'date' => array($error_block, $error_message)</code>
+     *  <code>'date' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value is a propper date, formated according to the format set through the
      *  {@link Zebra_Form_Date::format() format()} method.
@@ -1069,7 +1026,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'date' => array(
-     *          'error',        // variable to add the error message to
      *          'Invalid date!' // error message if value doesn't validate
      *       )
      *  );
@@ -1077,7 +1033,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>datecompare</b>
      *
-     *  <code>'datecompare' => array($control, $comparison_operator, $error_block, $error_message)</code>
+     *  <code>'datecompare' => array($control, $comparison_operator, $error_message)</code>
      *
      *  where
      *
@@ -1086,9 +1042,7 @@ class Zebra_Form_Control extends XSS_Clean
      *  -   <i>comparison_operator</i> indicates how the value should be, compared to the value of <i>control</i>.<br>
      *      Possible values are <, <=, >, >=
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value satisfies the comparison operator when compared to the other date control's value.
      *
@@ -1100,7 +1054,6 @@ class Zebra_Form_Control extends XSS_Clean
      *       'datecompare' => array(
      *          'another_date'                      // name of another date control on the form
      *          '>',                                // comparison operator
-     *          'error',                            // variable to add the error message to
      *          'Date must be after another_date!'  // error message if value doesn't validate
      *       )
      *  );
@@ -1182,7 +1135,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *      // this rule will be checked only
      *      // if all of the conditions above are met
-     *      'required'      =>  array('error', 'Value is required!'),
+     *      'required'      =>  array('Value is required!'),
      *  ));
      *  </code>
      *
@@ -1284,7 +1237,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>digits</b>
      *
-     *  <code>'digits' => array($additional_characters, $error_block, $error_message)</code>
+     *  <code>'digits' => array($additional_characters, $error_message)</code>
      *
      *  where
      *
@@ -1292,9 +1245,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      an empty string if none); note that if you want to use / (backslash) you need to specify it as three (3)
      *      backslashes ("///")!
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value contains only digits (0 to 9) <b>plus</b> characters given as additional characters (if any).
      *
@@ -1306,7 +1257,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'digits' => array(
      *          '-'                         // allow digits and dash
-     *          'error',                    // variable to add the error message to
      *          'Only digits are allowed!'  // error message if value doesn't validate
      *       )
      *  );
@@ -1314,13 +1264,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>email</b>
      *
-     *  <code>'email' => array($error_block, $error_message)</code>
+     *  <code>'email' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value is a properly formatted email address.
      *
@@ -1331,7 +1279,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'email' => array(
-     *          'error',                    // variable to add the error message to
      *          'Invalid email address!'    // error message if value doesn't validate
      *       )
      *  );
@@ -1339,13 +1286,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>emails</b>
      *
-     *  <code>'emails' => array($error_block, $error_message)</code>
+     *  <code>'emails' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value is a properly formatted email address <b>or</b> a comma separated list of properly
      *  formatted email addresses.
@@ -1357,7 +1302,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'emails' => array(
-     *          'error',                        // variable to add the error message to
      *          'Invalid email address(es)!'    // error message if value doesn't validate
      *       )
      *  );
@@ -1365,15 +1309,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>filesize</b>
      *
-     *  <code>'filesize' => array($file_size, $error_block, $error_message)</code>
+     *  <code>'filesize' => array($file_size, $error_message)</code>
      *
      *  where
      *
      *  -   <i>file_size</i> is the allowed file size, in bytes
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the size (in bytes) of the uploaded file is not larger than the value (in bytes) specified by
      *  <i>file_size</i>.
@@ -1387,7 +1329,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'filesize' => array(
      *          '102400',                           // maximum allowed file size (in bytes)
-     *          'error',                            // variable to add the error message to
      *          'File size must not exceed 100Kb!'  // error message if value doesn't validate
      *       )
      *  );
@@ -1397,15 +1338,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  <b>If you want to check for images use the dedicated "image" rule instead!</b>
      *
-     *  <code>'filetype' => array($file_types, $error_block, $error_message)</code>
+     *  <code>'filetype' => array($file_types, $error_message)</code>
      *
      *  where
      *
      *  -   <i>file_types</i> is a string of comma separated file extensions representing uploadable file types
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates only if the uploaded file's MIME type matches the MIME types associated with the extensions set by
      *  <i>file_types</i> as defined in <i>mimes.json</i> file.
@@ -1423,7 +1362,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'filetype' => array(
      *          'xls, xlsx'                 // allow only EXCEL files to be uploaded
-     *          'error',                    // variable to add the error message to
      *          'Not a valid Excel file!'   // error message if value doesn't validate
      *       )
      *  );
@@ -1431,7 +1369,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>float</b>
      *
-     *  <code>'float' => array($additional_characters, $error_block, $error_message)</code>
+     *  <code>'float' => array($additional_characters, $error_message)</code>
      *
      *  where
      *
@@ -1439,9 +1377,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      minus sign (provide an empty string if none); note that if you want to use / (backslash) you need to specify
      *      it as three (3) backslashes ("///")!
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value contains only digits (0 to 9) and/or <b>one</b> dot (but not as the very first character)
      *  and/or <b>one</b> minus sign (but only if it is the very first character) <b>plus</b> characters given as
@@ -1455,7 +1391,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'float' => array(
      *          ''                  // don't allow any extra characters
-     *          'error',            // variable to add the error message to
      *          'Invalid number!'   // error message if value doesn't validate
      *       )
      *  );
@@ -1463,14 +1398,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>image</b>
      *
-     *  <code>'image' => array($error_block, $error_message)</code>
+     *  <code>'image' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
-     *
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates only if the uploaded file is a valid GIF, PNG or JPEG image file.
      *
@@ -1480,7 +1412,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'image' => array(
-     *          'error',                                // variable to add the error message to
      *          'Not a valid GIF, PNG or JPEG file!'    // error message if value doesn't validate
      *       )
      *  );
@@ -1488,7 +1419,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>length</b>
      *
-     *  <code>'length' => array($minimum_length, $maximum_length, $error_block, $error_message, $show_counter)</code>
+     *  <code>'length' => array($minimum_length, $maximum_length, $error_message, $show_counter)</code>
      *
      *  where
      *
@@ -1496,9 +1427,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <i>maximum_length</i> is the maximum number of characters the values should contain
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  -   <i>show_counter</i> if set to TRUE, a counter showing the remaining characters will be displayed along with
      *      the element
@@ -1522,7 +1451,6 @@ class Zebra_Form_Control extends XSS_Clean
      *       'length' => array(
      *          3,                                              // minimum length
      *          6,                                              // maximum length
-     *          'error',                                        // variable to add the error message to
      *          'Value must have between 3 and 6 characters!'   // error message if value doesn't validate
      *       )
      *  );
@@ -1530,7 +1458,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>number</b>
      *
-     *  <code>'number' => array($additional_characters, $error_block, $error_message)</code>
+     *  <code>'number' => array($additional_characters, $error_message)</code>
      *
      *  where
      *
@@ -1538,9 +1466,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      minus sign (provide an empty string if none); note that if you want to use / (backslash) you need to specify
      *      it as three (3) backslashes ("///")!
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value contains only digits (0 to 9) and/or <b>one</b> minus sign (but only if it is the very
      *  first character) <b>plus</b> characters given as additional characters (if any).
@@ -1553,7 +1479,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'number' => array(
      *          ''                  // don't allow any extra characters
-     *          'error',            // variable to add the error message to
      *          'Invalid integer!'  // error message if value doesn't validate
      *       )
      *  );
@@ -1561,15 +1486,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>regexp</b>
      *
-     *  <code>'regexp' => array($regular_expression, $error_block, $error_message)</code>
+     *  <code>'regexp' => array($regular_expression, $error_message)</code>
      *
      *  where
      *
      *  -   <i>regular_expression</i> is the regular expression pattern (without delimiters) to be tested on the value
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value satisfies the given regular expression
      *
@@ -1581,7 +1504,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'regexp' => array(
      *          '^0123'                         // the regular expression
-     *          'error',                        // variable to add the error message to
      *          'Value must begin with "0123"'  // error message if value doesn't validate
      *       )
      *  );
@@ -1589,14 +1511,11 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>required</b>
      *
-     *  <code>'required' => array($error_block, $error_message)</code>
+     *  <code>'required' => array($error_message)</code>
      *
      *  where
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
-     *
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates only if a value exists.
      *
@@ -1609,7 +1528,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  // $obj is a reference to a control
      *  $obj->set_rule(
      *       'required' => array(
-     *          'error',            // variable to add the error message to
      *          'Field is required' // error message if value doesn't validate
      *       )
      *  );
@@ -1629,7 +1547,6 @@ class Zebra_Form_Control extends XSS_Clean
      *      $background_color,
      *      $enlarge_smaller_images,
      *      $jpeg_quality,
-     *      $error_block,
      *      $error_message,
      *  )
      *  </code>
@@ -1727,9 +1644,7 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *      Available only for JPEG files.
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  <i>This rule must come</i> <b>after</b> <i>the</i> <b>upload</b> <i>rule!</i>
      *
@@ -1751,7 +1666,6 @@ class Zebra_Form_Control extends XSS_Clean
      *          'FFFFFF',                           // background color
      *          true,                               // enlarge smaller images
      *          85,                                 // jpeg quality
-     *          'error',                            // variable to add the error message to
      *          'Thumbnail could not be created!'   // error message if value doesn't validate
      *       )
      *  );
@@ -1759,15 +1673,15 @@ class Zebra_Form_Control extends XSS_Clean
      *  // for multiple resizes, use an array of arrays:
      *  $obj->set_rule(
      *       'resize' => array(
-     *          array('thumb1_', 150, 150, true, ZEBRA_IMAGE_BOXED, 'FFFFFF', true, 85, 'error', 'Error!'),
-     *          array('thumb2_', 300, 300, true, ZEBRA_IMAGE_BOXED, 'FFFFFF', true, 85, 'error', 'Error!'),
+     *          array('thumb1_', 150, 150, true, ZEBRA_IMAGE_BOXED, 'FFFFFF', true, 85, 'Error!'),
+     *          array('thumb2_', 300, 300, true, ZEBRA_IMAGE_BOXED, 'FFFFFF', true, 85, 'Error!'),
      *       )
      *  );
      *  </code>
      *
      *  -   <b>upload</b>
      *
-     *  <code>'upload' => array($upload_path, $file_name, $error_block, $error_message)</code>
+     *  <code>'upload' => array($upload_path, $file_name, $error_message)</code>
      *
      *  where
      *
@@ -1784,9 +1698,7 @@ class Zebra_Form_Control extends XSS_Clean
      *      Note that when set to TRUE or a string, a suffix of "_n" (where n is an integer) will be appended to the
      *      file name if a file with the same name already exists at the given path.
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the file was successfully uploaded to the folder specified by <b>upload_path</b>.
      *
@@ -1817,7 +1729,6 @@ class Zebra_Form_Control extends XSS_Clean
      *       'upload' => array(
      *          'tmp',                              // path to upload file to
      *          ZEBRA_FORM_UPLOAD_RANDOM_NAMES,     // upload file with random-generated name
-     *          'error',                            // variable to add the error message to
      *          'File could not be uploaded!'       // error message if value doesn't validate
      *       )
      *  );
@@ -1825,15 +1736,13 @@ class Zebra_Form_Control extends XSS_Clean
      *
      *  -   <b>url</b>
      *
-     *  <code>'url' => array($require_protocol, $error_block, $error_message)</code>
+     *  <code>'url' => array($require_protocol, $error_message)</code>
      *
      *  where
      *
      *  -   <i>require_protocol</i> indicates whether the <i>http</i> or <i>https</i> prefix should be mandatory or not
      *
-     *  -   <i>error_block</i> is the PHP variable to append the error message to, in case the rule does not validate
-     *
-     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed
+     *  -   <i>error_message</i> is the error message to be shown when rule is not obeyed;
      *
      *  Validates if the value represents a valid URL
      *
@@ -1861,7 +1770,6 @@ class Zebra_Form_Control extends XSS_Clean
      *  $obj->set_rule(
      *       'url' => array(
      *          true,               // require users to start the URL with http:// or https:// in order for the URL to be valid
-     *          'error',            // variable to add the error message to
      *          'Not a valid URL!'  // error message if value doesn't validate
      *       )
      *  );
