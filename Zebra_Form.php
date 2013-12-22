@@ -1485,14 +1485,32 @@ class Zebra_Form
                             // if value is an array
                             if (is_array($value)) {
 
+                                // assume we don't need to convert this to a JavaScript object
+                                $is_object = false;
+
+                                // iterate through all the keys/values
+                                foreach ($value as $key => $val)
+
+                                    // if at least one of the keys is not numeric
+                                    if (preg_match('/[^0-9]/', $key) > 0) {
+
+                                        // set this flag to true
+                                        $is_object = true;
+
+                                        // don't look further
+                                        break;
+
+                                    }
+
                                 // format accordingly
-                                $properties .= '[';
+                                $properties .= ($is_object ? '{' : '[');
 
-                                foreach ($value as $val)
+                                // iterate through the values
+                                foreach ($value as $key => $val)
 
-                                    $properties .= ($val === true ? 'true' : ($val === false ? 'false' : (is_numeric($val) ? $val : '\'' . $val . '\''))) . ',';
+                                    $properties .= (!is_numeric($key) ? '\'' . $key . '\':' : '') . ($val === true ? 'true' : ($val === false ? 'false' : (is_numeric($val) ? $val : '\'' . $val . '\''))) . ',';
 
-                                $properties = rtrim($properties, ',') . ']';
+                                $properties = rtrim($properties, ',') . ($is_object ? '}' : ']');
 
                             // if value is a jQuery selector
                             } elseif (preg_match('/^\$\((\'|\").*?\1\)/', trim($value)) > 0) {
