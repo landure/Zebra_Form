@@ -1945,16 +1945,18 @@ class Zebra_Form
 
                     ++$counter;
 
-                    $main_control_attrs = $this->controls[$main_control]->get_attributes('type');
+                    $main_control_attrs = null;
+                    if(isset($this->controls[$main_control])) {
 
-                    if($main_control_attrs['type'] === 'raw')
-                    {
+                      $main_control_attrs = $this->controls[$main_control]->get_attributes('type');
+
+                    }
+
+                    if(isset($main_control_attrs['type']) && $main_control_attrs['type'] === 'raw') {
 
                         $contents .= $this->controls[$main_control]->toHTML();
 
-                    }
-                    else
-                    {
+                    } else {
                         // each block is in its own row
                         $contents .= '<tr class="row' . ($counter % 2 == 0 ? ' even' : '') . ($counter == $rows ? ' last' : '') . '">';
 
@@ -2048,18 +2050,18 @@ class Zebra_Form
                 // iterate through blocks
                 foreach ($blocks as $main_control => $controls) {
 
-                    $main_control_attributes = $this->controls[$main_control]->get_attributes('type');
+                    $main_control_attrs = null;
+                    if(isset($this->controls[$main_control])) {
 
-                    $main_control_attrs = $this->controls[$main_control]->get_attributes('type');
+                      $main_control_attrs = $this->controls[$main_control]->get_attributes('type');
 
-                    if($main_control_attrs['type'] === 'raw')
-                    {
+                    }
+
+                    if(isset($main_control_attrs['type']) && $main_control_attrs['type'] === 'raw') {
 
                         $contents .= $this->controls[$main_control]->toHTML();
 
-                    }
-                    else
-                    {
+                    } else {
 
                         // ...then block is contained in its own row
                         $contents .= '<div class="row' . (++$counter % 2 == 0 ? ' even' : '') . ($counter == $rows ? ' last' : '') . '">';
